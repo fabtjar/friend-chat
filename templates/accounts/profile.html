@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block content %}
+    <h1>{{ user }}'s Profile</h1>
+    <h3>Messages</h3>
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li title="{{ message.created_by }} ({{ message.created_at|naturaltime }})">
+                    <a href="{% url 'message_details' message.id %}">
+                        {{ message.title }}: {{ message.text }}
+                    </a>
+                    {% if message.replies.all %}
+                        <ul>
+                            {% for reply in message.replies.all %}
+                                <li title="{{ reply.created_by }} ({{ reply.created_at|naturaltime }})">
+                                    {{ reply.title }}: {{ reply.text }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No messages yet</p>
+    {% endif %}
+    {% if request.user.is_authenticated and request.user != user %}
+        <div>
+            <p>Send message</p>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Post">
+            </form>
+        </div>
+        <br/>
+    {% endif %}
+    <a href="{% url 'list_users' %}">All users</a>
+    {% if request.user == user %}
+        | <a href="{% url 'account_logout' %}">Sign out</a>
+    {% endif %}
+{% endblock %}

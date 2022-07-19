@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load humanize %}
+
+{% block content %}
+    <h2>{{ message.title }}</h2>
+    <p>{{ message.text }}</p>
+    <p>Created by: <a href="{{ message.created_by.get_absolute_url }}">{{ message.created_by }}</a></p>
+    <p>Created at: {{ message.created_at }}</p>
+    {% if message.replies.all %}
+        <h3>Replies</h3>
+        <ul>
+            {% for reply in message.replies.all %}
+                <li title="{{ message.created_by }} ({{ message.created_at|naturaltime }})">
+                    <b>{{ reply.title }}:</b> {{ reply.text }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    {% if request.user.is_authenticated %}
+        <h4>Reply</h4>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}    
+            <input type="submit" value="Reply">
+        </form>
+    {% endif %}
+    <a href="{{ message.recipient.get_absolute_url }}">Back to {{ message.recipient }}'s posts</a>
+{% endblock %}
